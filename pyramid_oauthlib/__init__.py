@@ -165,13 +165,20 @@ def duplicate_params(request):
     keys = list(request.params)
     return [k for k in keys if keys.count(k) > 1]
 
+
 def oauth_response(result):
     headers, body, status = result
-    return Response(body=body, status=status, headers={
-        native_(name, encoding='latin-1'): native_(value, encoding='latin-1')
+
+    if isinstance(headers, dict):
+        header_iter = headers.items()
+    else:
+        header_iter = headers
+
+    return Response(body=body, status=status, headerlist=[
+        (native_(name, encoding='latin-1'), native_(value, encoding='latin-1'))
         for name, value
-        in headers.items()
-    })
+        in header_iter
+    ])
 
 
 def register(config, server):
